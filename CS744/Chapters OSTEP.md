@@ -1,6 +1,6 @@
 # **1. Overview of Chapter 5**
 Here is a detailed breakdown of **Chapter 5: Interlude: Process API** from _Operating Systems: Three Easy Pieces_ (OSTEP).
-
+ 
 
 Chapter 5 focuses on the practical APIs provided by UNIX-based operating systems for process creation and control. The three central system calls discussed are **`fork()`**, **`wait()`**, and **`exec()`**.
 
@@ -24,7 +24,11 @@ Chapter 5 focuses on the practical APIs provided by UNIX-based operating systems
 
 ### **3. The `wait()` System Call**
 
-- **Purpose**: Allows a parent process to delay its execution until a child process finishes executing.
+- **Purpose**: Allows a parent process to delay its execution until a child process finishes executing. 
+
+> [!Question] Doubt
+> Can only a immediate parent call wait on a process? how xv6 does it? 
+
 - **How It Works**:
     - When the parent calls `wait()` (or its variant `waitpid()`), it pauses until the child completes and exits.
     - Once the child exits, `wait()` returns to the parent, along with the child's completion status or PID.
@@ -74,6 +78,78 @@ UNIX process creation relies on **`fork()`** to copy the process, **`wait()`** t
 ---
 
 Here is a detailed breakdown of 
+
+# Ch 6 : LDE
+Here is a detailed breakdown of **Chapter 6: Mechanism: Limited Direct Execution** from _Operating Systems: Three Easy Pieces_ (OSTEP).
+
+---
+
+### **1. Overview & Crux of Chapter 6**
+
+- **The Goal**: To virtualize the CPU, the operating system time-shares physical CPU resources among multiple processes.
+- **The Challenges**: The OS must achieve **performance** (avoiding excessive execution overhead) while maintaining **control** over system resources. Without control, a rogue process could run forever or access unauthorized data.
+- **The Crux**: How the OS and hardware work together to efficiently virtualize the CPU while maintaining full control over system resources.
+
+---
+
+### **2. Basic Technique: Direct Execution (Section 6.1)**
+
+- **Direct Execution Concept**: The OS runs user programs directly on the physical CPU to ensure they execute as quickly as expected.
+- **Protocol Without Limits**:
+    1. The OS creates an entry in the process list, allocates memory, and loads the program code from disk into the address space.
+    2. The OS sets up the user stack with `argc` and `argv`, clears registers, and executes a `call` to `main()`.
+    3. The CPU executes `main()` directly.
+    4. Upon completion, `main()` returns to the OS, which frees the process memory and clears the process list entry.
+
+---
+
+### **3. Problem #1: Restricted Operations (Section 6.2)**
+
+- **The Problem**: If a process runs directly on the CPU without restrictions, it could issue unauthorized I/O requests or read/write arbitrary physical memory.
+- **Hardware Execution Modes**: The hardware assists the OS by offering multiple privilege levels:
+    - **User Mode**: Applications operate with restricted access and cannot issue privileged hardware commands.
+    - **Kernel Mode**: The OS operates with full privileges to control machine hardware and execute restricted instructions.
+- **System Calls and Traps**:
+    - To perform restricted operations (such as disk I/O), a user program must execute a special **`trap`** instruction.
+    - The `trap` instruction simultaneously raises the CPU privilege level to kernel mode and jumps to a kernel-designated handler.
+    - The hardware automatically pushes the caller's registers (such as the Program Counter, flags, and general-purpose registers) onto a per-process **kernel stack**.
+    - When finished, the OS issues a **`return-from-trap`** instruction, which pops the saved registers off the kernel stack, lowers the privilege back to user mode, and resumes execution at the instruction following the trap.
+- **Trap Tables**:
+    - To prevent user processes from jumping anywhere in kernel code, the OS configures a **trap table** during boot time while running in privileged mode.
+    - The OS informs the hardware of the memory addresses for its **trap handlers** (such as system call and interrupt handlers), and the hardware remembers these locations until the next reboot.
+- **C Library Wrappers**:
+    - System calls like `open()` or `read()` appear as normal C procedure calls because hand-coded assembly wrapper functions in the C library place arguments into designated registers/stack locations and execute the hardware `trap` instruction.
+
+---
+
+### **4. Problem #2: Switching Between Processes (Section 6.3)**
+
+- **The Problem**: When a process is running on the CPU, the OS is not running; if the OS is not running, it cannot intervene to switch processes.
+- **The Cooperative Approach**:
+    - Early operating systems relied on processes to periodically yield the CPU by making **system calls** (e.g., file I/O or an explicit `yield()` call) or by triggering a trap via illegal operations (such as dividing by zero).
+    - _Limitation_: If a misbehaving or buggy process enters an infinite loop without making system calls, the OS never regains control, requiring a manual reboot.
+- **The Non-Cooperative Approach (Timer Interrupt)**:
+    - Modern operating systems maintain control using a hardware **timer interrupt** programmed during boot time to fire every few milliseconds.
+    - When the timer interrupt goes off, the currently running process is halted, and the OS's pre-configured **interrupt handler** executes, returning CPU control to the OS.
+- **Context Switching**:
+    - When the OS **scheduler** decides to switch from Process A to Process B, it executes a low-level assembly routine called a **context switch**.
+    - The context switch saves the register state (general-purpose registers, PC, and kernel stack pointer) of Process A into its process structure/PCB, restores the register state of Process B from its PCB, and switches kernel stacks.
+    - **Two Types of Register Saves**:
+        1. _Hardware_: Automatically saves user registers onto the process's kernel stack when an interrupt or trap occurs.
+        2. _Software_: The OS `switch()` function explicitly saves kernel registers into the process control block when switching active threads.
+
+---
+
+### **5. Concurrency Concerns & LDE Summary (Sections 6.4 & 6.5)**
+
+- **Kernel Concurrency**: To handle nested interrupts or interrupts occurring during system call processing, the OS may **disable interrupts** during critical sections or implement **locking mechanisms** to protect internal kernel structures.
+- **The "Baby Proofing" Analogy**: The OS "baby proofs" the CPU during boot time by configuring trap handlers and starting the interrupt timer before allowing user processes to run in restricted mode.
+- **System Reboots**: Rebooting moves software back to a known clean state and reclaims stale or leaked system resources.
+- **Performance Measurement**: Benchmarking tools such as **`lmbench`** can be used to measure the precise microsecond costs of system calls and context switches.
+
+---
+
+💡 **Next Step**: Would you like to move on to **Chapter 7: Scheduling: Introduction** to examine basic CPU scheduling metrics and algorithms like FIFO, SJF, STCF, and Round Robin?
 # **Chapter 13: The Abstraction: Address Spaces** from _Operating Systems: Three Easy Pieces_ (OSTEP).
 
 ---
