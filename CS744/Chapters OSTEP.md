@@ -329,7 +329,7 @@ The OS must intervene at specific points in time to manage dynamic relocation:
 
 1. **Process Creation**: The OS searches a **free list** (a data structure tracking unallocated ranges of physical memory) to find a slot for the new process's address space.
 2. **Process Termination**: Upon process exit or termination, the OS reclaims its allocated memory slot and returns it to the free list.
-3. **Context Switching**: Because there is only one set of base and bounds registers per CPU, the OS must save the active process's base/bounds values into its **Process Control Block (PCB)** when descheduling it, and restore the new process's base/bounds registers before resuming execution.
+3. **Base-Bounds management on Context Switching**: Because there is only one set of base and bounds registers per CPU, the OS must save the active process's base/bounds values into its **Process Control Block (PCB)** when descheduling it, and restore the new process's base/bounds registers before resuming execution.
 4. **Address Space Relocation**: The OS can move a stopped process to a different location in physical memory by copying its address space to a new slot and updating its saved base register value in its PCB.
 5. **Exception Handling**: The OS installs exception handlers during boot time. If a process generates an out-of-bounds address, the CPU raises an exception, invoking the OS handler which typically terminates the misbehaving process.
 
@@ -382,7 +382,7 @@ Because `free(ptr)` takes no size argument, allocators store metadata in an expl
 
 - **Header Contents**: Minimally stores the **size** of the allocated region and a **magic number** (used for integrity and sanity checks).
 - **Pointer Arithmetic**: When `free(ptr)` is invoked, pointer arithmetic (`(void *)ptr - sizeof(header_t)`) locates the header to determine the size of the freed block.
-- **Space Overhead**: An allocation request for \(N\) bytes actually consumes \(N + \text{sizeof(header_t)}\) bytes of physical space.
+- **Space Overhead**: An allocation request for \(N\) bytes actually consumes $(N + \text{sizeof(header\_t)})$ bytes of physical space.
 
 #### **C. Embedding a Free List**
 
