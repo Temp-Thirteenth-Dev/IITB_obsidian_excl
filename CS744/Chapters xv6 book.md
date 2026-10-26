@@ -277,7 +277,7 @@ An operating system must support multiple concurrent activities (such as running
     2. **A Thread of Control**: Gives the program the illusion of a private CPU.
 - **Virtual Address Space Layout** (Figure 2.3):
     - Starts at virtual address `0` containing **user text and data**, followed by the **user stack**, and the **heap** (grows upward).
-    - RISC-V Sv39 uses 38 bits for virtual addresses in xv6, making the maximum virtual address \(\text{MAXVA} = 2^{38}-1 = \text{0x3fffffffff}\).
+    - RISC-V Sv39 uses 38 bits for virtual addresses in xv6, making the maximum virtual address $\text{MAXVA} = 2^{38}-1 = \text{0x3fffffffff}$.
     - At the very top of every process address space reside two special unmapped/kernel-accessible pages: the **trampoline page** (contains code to switch into kernel mode) and the **trapframe page** (holds saved user registers).
 - **Two Stacks per Process**:
     - **User Stack**: Used while executing user instructions.
