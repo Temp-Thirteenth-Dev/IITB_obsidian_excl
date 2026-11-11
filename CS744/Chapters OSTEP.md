@@ -850,3 +850,11 @@ int pthread_cond_signal(pthread_cond_t *cond);
 ---
 
 💡 **Next Step**: Would you like to explore **Chapter 28: Locks** to see how hardware primitives (such as Test-and-Set or Compare-and-Swap) and OS support are used to build locks from scratch?
+
+---
+
+
+
+
+---
+# Bottom BOOKMARK

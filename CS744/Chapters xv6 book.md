@@ -588,7 +588,7 @@ Refer to the following figures, registers, and source code references when revie
 1. **Figure 4.1: Outline of how a trap from user code is handled**
     
     - **Location**: Page 45 of the xv6 text.
-    - **Description**: A flow diagram outlining the high-level execution path for traps originating from user code: \[\text{User Code} \rightarrow \text{trampoline uservec} \rightarrow \text{usertrap} \rightarrow \text{syscall or device driver} \rightarrow \text{trampoline userret} \rightarrow \text{User Code}\]
+    - **Description**: A flow diagram outlining the high-level execution path for traps originating from user code: $$\text{User Code} \rightarrow \text{trampoline uservec} \rightarrow \text{usertrap} \rightarrow \text{syscall or device driver} \rightarrow \text{trampoline userret} \rightarrow \text{User Code}$$
 2. **Core RISC-V CSR Registers (Section 4.1)**:
     
     - `stvec` (handler vector address)
@@ -838,7 +838,8 @@ Without coordination, concurrent reads and writes to shared data structures yiel
 
 - **Deadlock**: A scenario where CPU 1 holds Lock A and waits for Lock B, while CPU 2 holds Lock B and waits for Lock A. Neither can proceed, and the system freezes.
 - **Deadlock Prevention Rule**: All code paths that acquire multiple locks **must acquire them in the exact same global lock order**.
-- **Lock Chains in xv6**: File system operations exhibit xv6's longest lock chains. For example, file creation requires acquiring: \[\text{Directory Inode Lock} \rightarrow \text{File Inode Lock} \rightarrow \text{Block Buffer Lock} \rightarrow \text{vdisk_lock} \rightarrow \text{proc's } \text{p->lock}\].
+- **Lock Chains in xv6**: File system operations exhibit xv6's longest lock chains. For example, file creation requires acquiring: 
+$$\text{Directory Inode Lock} \rightarrow \text{File Inode Lock} \rightarrow \text{Block Buffer Lock} \rightarrow \text{vdisk\_lock} \rightarrow \text{procs} \text{p->lock}$$.
 - **Non-Reentrant Locks**: xv6 forbids recursive/re-entrant locking (a CPU attempting to re-acquire a spinlock it already holds). `acquire()` calls `holding()` and panics if recursive locking is detected.
 
 #### **7.5 Locks and Interrupts**
@@ -940,7 +941,7 @@ In any operating system, the number of active processes typically exceeds the nu
     1. Process A's kernel thread context-switches to the current CPU's dedicated **scheduler thread**.
     2. The CPU's scheduler thread selects a `RUNNABLE` process (Process B).
     3. The scheduler thread context-switches to Process B's kernel thread.
-- **Full Process-to-Process Execution Path**: \[\text{User Process A} \xrightarrow{\text{Trap/ecall}} \text{Kernel Thread A} \xrightarrow{\text{swtch()}} \text{CPU Scheduler Thread} \xrightarrow{\text{swtch()}} \text{Kernel Thread B} \xrightarrow{\text{userret/sret}} \text{User Process B}\]
+- **Full Process-to-Process Execution Path**: $$\text{User Process A} \xrightarrow{\text{Trap/ecall}} \text{Kernel Thread A} \xrightarrow{\text{swtch()}} \text{CPU Scheduler Thread} \xrightarrow{\text{swtch()}} \text{Kernel Thread B} \xrightarrow{\text{userret/sret}} \text{User Process B}$$
 
 ---
 
@@ -1267,7 +1268,7 @@ Here are the specific figures and structural references in Chapter 10:
 1. **Figure 10.1: Layers of the xv6 file system**
     
     - **Location**: Page 90 of the xv6 text.
-    - **Description**: A stacked architectural diagram showing the 7 abstraction layers of the file system: \[\text{File Descriptor} \rightarrow \text{Pathname} \rightarrow \text{Directory} \rightarrow \text{Inode} \rightarrow \text{Logging} \rightarrow \text{Buffer Cache} \rightarrow \text{Disk}\]
+    - **Description**: A stacked architectural diagram showing the 7 abstraction layers of the file system: $$\text{File Descriptor} \rightarrow \text{Pathname} \rightarrow \text{Directory} \rightarrow \text{Inode} \rightarrow \text{Logging} \rightarrow \text{Buffer Cache} \rightarrow \text{Disk}$$
 2. **Figure 10.2: Structure of the xv6 file system**
     
     - **Location**: Page 90 of the xv6 text.
